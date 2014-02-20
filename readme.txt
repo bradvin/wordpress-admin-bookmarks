@@ -1,10 +1,10 @@
 === Admin Bookmarks ===
-**Contributors:** bradvin  
-**Donate link:** http://themergency.com/donate/  
-**Tags:** admin, shortcut, bookmarks  
-**Requires at least:** 3.8  
-**Tested up to:** 3.8.1  
-**Stable tag:** trunk  
+Contributors: bradvin
+Donate link: http://themergency.com/donate/
+Tags: admin, shortcut, bookmarks
+Requires at least: 3.8
+Tested up to: 3.8.1
+Stable tag: trunk
 
 Bookmark your favorite posts, pages or custom post types within the WordPress admin
 

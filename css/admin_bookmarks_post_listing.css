@@ -1,0 +1,58 @@
+.admin-bookmarks-icon:before {
+	font: normal 20px/.5 'dashicons';
+	speak: none;
+	display: inline-block;
+	padding: 0;
+	top: 4px;
+	position: relative;
+	vertical-align: top;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-decoration: none !important;
+	content: "\f154";
+}
+
+	.admin-bookmarks-icon.bookmarked:before {
+		content: "\f155";
+	}
+
+	th.column-bookmark, td.column-bookmark {
+		width: 2em;
+		text-align: center;
+	}
+
+.wp-submenu .admin-bookmarks-icon:before {
+	font-size: 12px;
+	padding-right:5px;
+}
+
+#dashboard_my_bookmarks h4 {
+	font-weight: bold;
+}
+
+#dashboard_my_bookmarks .admin-bookmarks-icon {
+	padding-left: 10px;
+}
+
+#dashboard_my_bookmarks .admin-bookmarks-icon:before {
+	font-size: 12px;
+	padding-right:5px;
+	top:6px;
+}
+
+li.current .admin-bookmarks-icon:before {
+	color: #FFFBCC;
+}
+
+.wp-list-table .admin-bookmarks-icon span {
+	display: none;
+}
+
+#adv-settings .admin-bookmarks-icon {
+	display: inline-block;
+}
+
+	#adv-settings .admin-bookmarks-icon:before {
+		display: none;
+	}
+
