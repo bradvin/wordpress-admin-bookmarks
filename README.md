@@ -1,10 +1,10 @@
 # Admin Bookmarks #
-**Contributors:** bradvin  
-**Donate link:** http://themergency.com/donate/  
-**Tags:** admin, shortcut, bookmark, bookmarks, productivity  
-**Requires at least:** 3.8  
-**Tested up to:** 3.8.1  
-**Stable tag:** trunk  
+Contributors: bradvin
+Donate link: http://themergency.com/donate/
+Tags: admin, shortcut, bookmark, bookmarks, productivity
+Requires at least: 3.8
+Tested up to: 3.8.1
+Stable tag: trunk
 
 Bookmark your favorite posts, pages or custom post types within the WordPress admin
 
@@ -31,13 +31,13 @@ The plugins has the following features:
 ## Screenshots ##
 
 ### 1. New bookmark column ###
-![New bookmark column](http://s.wordpress.org/extend/plugins/admin-bookmarks/screenshot-1.png)
+![New bookmark column](http://s.wordpress.org/extend/plugins/my-admin-bookmarks/screenshot-1.png)
 
 ### 2. Bookmarks added to admin menu ###
-![Bookmarks added to admin menu](http://s.wordpress.org/extend/plugins/admin-bookmarks/screenshot-2.png)
+![Bookmarks added to admin menu](http://s.wordpress.org/extend/plugins/my-admin-bookmarks/screenshot-2.png)
 
 ### 3. Dashboard bookmarks widget ###
-![Dashboard bookmarks widget](http://s.wordpress.org/extend/plugins/admin-bookmarks/screenshot-3.png)
+![Dashboard bookmarks widget](http://s.wordpress.org/extend/plugins/my-admin-bookmarks/screenshot-3.png)
 
 
 ## Changelog ##

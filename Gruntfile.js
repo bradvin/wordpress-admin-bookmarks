@@ -5,6 +5,9 @@ module.exports = function (grunt) {
 	grunt.initConfig({
 		wp_readme_to_markdown: {
 			your_target: {
+				options: {
+					plugin_slug: 'my-admin-bookmarks',
+				},
 				files: {
           'readme.md': 'readme.txt'
         }
