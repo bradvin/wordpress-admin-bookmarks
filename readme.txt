@@ -1,6 +1,5 @@
 === Admin Bookmarks ===
 Contributors: bradvin
-Donate link: http://themergency.com/donate/
 Tags: admin, shortcut, bookmark, bookmarks, productivity
 Requires at least: 3.8
 Tested up to: 3.8.1
