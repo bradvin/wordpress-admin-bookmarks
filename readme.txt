@@ -1,7 +1,7 @@
 === Admin Bookmarks ===
 Contributors: bradvin
 Donate link: http://themergency.com/donate/
-Tags: admin, shortcut, bookmarks
+Tags: admin, shortcut, bookmark, bookmarks, productivity
 Requires at least: 3.8
 Tested up to: 3.8.1
 Stable tag: trunk
@@ -15,9 +15,12 @@ Use this plugin if you constantly find yourself editing the same posts or pages,
 
 The plugins has the following features:
 
-*   Intuitive interface to bookmark items using a star icon. Uses the new WP3.8 dashicons icon font.
+* Intuitive interface to bookmark posts using a star icon. Uses the new WP3.8 dashicons icon font.
+* Zero settings! Activate and enjoy.
 *	Works with posts, pages and any custom post types
-*   Setting/unsetting a bookmark is done in realtime via AJAX
+* Dashboard widget listing all bookmarks.
+* Setting a bookmark is done in realtime via AJAX.
+* Bookmarks are added to the admin menu for quick editing.
 
 == Installation ==
 
@@ -29,11 +32,12 @@ The plugins has the following features:
 
 1. New bookmark column
 2. Bookmarks added to admin menu
+3. Dashboard bookmarks widget
 
 == Changelog ==
 
 = 1.0.0 =
-* Initial Relase. First version. Written from the ground up. Based on my outdated "Post Admin Shortcuts" plugin.
+* Initial Release. First version. Written from the ground up. Based on my outdated "Post Admin Shortcuts" plugin.
 
 == Frequently Asked Questions ==
 
