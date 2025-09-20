@@ -1,6 +1,5 @@
 .admin-bookmarks-icon:before {
 	font: normal 20px/.5 'dashicons';
-	speak: none;
 	display: inline-block;
 	padding: 0;
 	top: 4px;
@@ -52,7 +51,91 @@ li.current .admin-bookmarks-icon:before {
 	display: inline-block;
 }
 
-	#adv-settings .admin-bookmarks-icon:before {
-		display: none;
-	}
+#adv-settings .admin-bookmarks-icon:before {
+	display: none;
+}
 
+.admin-bookmarks-spinner.spinner.is-active {
+	margin: 2px 5px !important;
+	background-size: 18px 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.wp-list-table a.admin-bookmarks-icon {
+	box-shadow: none;
+	outline: none;
+}
+
+.wp-list-table a.admin-bookmarks-icon.is-processing {
+	display: none;
+}
+
+.admin-bookmarks-hidden {
+	display: none !important;
+}
+
+.wp-submenu li.admin-bookmarks-group {
+	position: relative;
+}
+
+.admin-bookmarks-group__toggle {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding-right: 28px !important;
+	text-decoration: none;
+}
+
+.admin-bookmarks-group__toggle:after {
+	content: "\f345";
+	font-family: dashicons;
+	font-size: 12px;
+	line-height: 1;
+	margin-left: auto;
+	transform: translateY(-1px);
+}
+
+.admin-bookmarks-group.has-current-bookmark > .admin-bookmarks-group__toggle {
+	font-weight: 600;
+}
+
+.admin-bookmarks-group .admin-bookmarks-submenu {
+	display: none;
+	position: absolute;
+	top: -1px;
+	left: 100%;
+	margin: 0;
+	padding: 6px 0;
+	list-style: none;
+	min-width: 200px;
+	background: #23282d;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+	z-index: 1000;
+}
+
+.admin-bookmarks-group:hover > .admin-bookmarks-submenu,
+.admin-bookmarks-group.is-open > .admin-bookmarks-submenu,
+.admin-bookmarks-group:focus-within > .admin-bookmarks-submenu {
+	display: block;
+}
+
+.admin-bookmarks-group .admin-bookmarks-submenu li {
+	margin: 0;
+}
+
+.admin-bookmarks-group .admin-bookmarks-submenu li a {
+	display: block;
+	padding: 6px 16px;
+}
+
+.admin-bookmarks-group .admin-bookmarks-submenu li.current > a {
+	background: #0073aa;
+	color: #fff;
+}
+
+.admin-bookmarks-group.is-open > .admin-bookmarks-group__toggle:after,
+.admin-bookmarks-group:focus-within > .admin-bookmarks-group__toggle:after,
+.admin-bookmarks-group:hover > .admin-bookmarks-group__toggle:after {
+	transform: translateY(-1px) rotate(90deg);
+}
