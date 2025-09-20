@@ -38,6 +38,13 @@ class AdminBookmarks {
     private $bookmark_groups = array();
 
     /**
+     * Feature components managed by the core class.
+     *
+     * @var array
+     */
+    private $components = array();
+
+    /**
      * Initialize the plugin by setting localization and loading admin assets.
      *
      * @since 1.0.0
@@ -47,12 +54,11 @@ class AdminBookmarks {
         add_action( 'admin_menu', array( $this, 'alter_admin_menu' ) );
         add_action( 'init', array( $this, 'create_columns_for_all_post_types' ), 999 );
         add_action( 'wp_ajax_toggle_admin_bookmark', array( $this, 'ajax_toggle_bookmark_callback' ) );
-        add_action( 'wp_dashboard_setup', array( $this, 'setup_dashboard_widget' ) );
-        add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit_bookmark_field' ), 10, 2 );
-        add_action( 'save_post', array( $this, 'save_bookmark_title' ), 10, 2 );
-        add_action( 'current_screen', array( $this, 'maybe_register_bookmark_view' ) );
-        add_action( 'pre_get_posts', array( $this, 'filter_bookmarked_posts' ) );
-        add_action( 'admin_bar_menu', array( $this, 'add_bookmarks_to_admin_bar' ), 80 );
+
+        $this->components[] = new Admin_Bookmarks_Admin_Bar( $this );
+        $this->components[] = new Admin_Bookmarks_Dashboard_Widget( $this );
+        $this->components[] = new Admin_Bookmarks_Quick_Edit( $this );
+        $this->components[] = new Admin_Bookmarks_View( $this );
     }
 
     /**
@@ -181,7 +187,7 @@ class AdminBookmarks {
      *
      * @return string
      */
-    private function edit_list_url( $post_type ) {
+    public function edit_list_url( $post_type ) {
         return admin_url( $this->edit_list_path( $post_type ) );
     }
 
@@ -192,7 +198,7 @@ class AdminBookmarks {
      *
      * @return string
      */
-    private function edit_list_path( $post_type ) {
+    public function edit_list_path( $post_type ) {
         if ( 'post' === $post_type ) {
             return 'edit.php';
         }
@@ -207,7 +213,7 @@ class AdminBookmarks {
      *
      * @return string
      */
-    private function get_menu_handle_for_post_type( $post_type ) {
+    public function get_menu_handle_for_post_type( $post_type ) {
         return ( 'post' === $post_type ) ? 'edit.php' : 'edit.php?post_type=' . sanitize_key( $post_type );
     }
 
@@ -244,7 +250,7 @@ class AdminBookmarks {
      *
      * @return string
      */
-    private function resolve_bookmark_title( $post_id, $post_title = '' ) {
+    public function resolve_bookmark_title( $post_id, $post_title = '' ) {
         $post_id      = absint( $post_id );
         $custom_title = get_post_meta( $post_id, '_bookmark_title', true );
         $title        = '' !== trim( (string) $custom_title ) ? $custom_title : trim( (string) $post_title );
@@ -263,7 +269,7 @@ class AdminBookmarks {
      *
      * @return string
      */
-    private function get_bookmark_title_text( $post ) {
+    public function get_bookmark_title_text( $post ) {
         if ( ! $post instanceof WP_Post ) {
             return '';
         }
@@ -346,13 +352,22 @@ class AdminBookmarks {
     }
 
     /**
+     * Retrieve grouped bookmarks keyed by post type.
+     *
+     * @return array
+     */
+    public function get_bookmark_groups() {
+        return $this->ensure_bookmark_groups();
+    }
+
+    /**
      * Retrieve bookmarked post IDs for the current user filtered by type.
      *
      * @param string $post_type Post type slug.
      *
      * @return array
      */
-    private function get_bookmarked_post_ids( $post_type ) {
+    public function get_bookmarked_post_ids( $post_type ) {
         $bookmarks = admin_bookmarks_get_bookmarks();
 
         if ( empty( $bookmarks ) || ! is_array( $bookmarks ) ) {
@@ -510,6 +525,9 @@ class AdminBookmarks {
      * @return void
      */
     public function ajax_toggle_bookmark_callback() {
+        $this->bookmark_groups = array();
+        $this->menu_data       = array();
+
         $post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
         $nonce   = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
 
@@ -631,302 +649,9 @@ class AdminBookmarks {
         }
     }
 
-    /**
-     * Register the dashboard widget that lists bookmarks.
-     *
-     * @return void
-     */
-    public function setup_dashboard_widget() {
-        wp_add_dashboard_widget( 'dashboard_my_bookmarks', __( 'My Bookmarks', 'admin-bookmarks' ), array( $this, 'render_dashboard_widget' ) );
-    }
-
-    /**
-     * Render the dashboard widget markup that lists bookmarks grouped by post type.
-     *
-     * @return void
-     */
-    public function render_dashboard_widget() {
-        $bookmarks = admin_bookmarks_get_bookmarks_as_posts();
-
-        if ( count( $bookmarks ) > 0 ) {
-            ksort( $bookmarks );
-
-            $current_post_type = false;
-
-            echo '<table width="100%">';
-
-            foreach ( $bookmarks as $bookmark ) {
-                $post      = $bookmark['post'];
-                $post_type = $bookmark['post_type'];
-                $edit_link = admin_url( $this->build_edit_url( $post ) );
-                if ( $current_post_type !== $post_type ) {
-                    if ( false !== $current_post_type ) {
-                        echo '<tr><td><br /></td></tr>';
-                    }
-                    $current_post_type = $post_type;
-                    echo '<tr><td colspan="3"><h4>' . esc_html( $current_post_type->label ) . '</h4></td></tr>';
-                }
-                echo '<tr><td>' . $this->build_menu_item_content( $post->ID, $post->post_title ) . '</span></td>';
-                echo '<td><a href="' . esc_url( $edit_link ) . '">' . esc_html__( 'Edit', 'admin-bookmarks' ) . '</a></td>';
-                echo '<td><a href="' . esc_url( get_permalink( $post->ID ) ) . '">' . esc_html__( 'View', 'admin-bookmarks' ) . '</a></td></tr>';
-            }
-
-            echo '</table>';
-
-            return;
-        }
-
-        echo '<p>' . esc_html__( 'You have no saved bookmarks', 'admin-bookmarks' ) . '</p>';
-    }
-
-    /**
-     * Output the bookmark title field for supported post types in Quick Edit.
-     *
-     * @param string $column_name Column being rendered.
-     * @param string $post_type   Post type for the current list table.
-     *
-     * @return void
-     */
-    public function render_quick_edit_bookmark_field( $column_name, $post_type ) {
-        if ( 'bookmark' !== $column_name ) {
-            return;
-        }
-
-        $supported = admin_bookmarks_get_supported_post_types( 'names' );
-        if ( empty( $supported ) || ! in_array( $post_type, $supported, true ) ) {
-            return;
-        }
-
-        static $printed = array();
-        if ( isset( $printed[ $post_type ] ) ) {
-            return;
-        }
-        $printed[ $post_type ] = true;
-
-        wp_nonce_field( 'admin_bookmarks_quick_edit', 'admin_bookmarks_quick_edit_nonce' );
-        ?>
-        <fieldset class="inline-edit-col-right inline-edit-admin-bookmarks">
-            <div class="inline-edit-col">
-                <label class="inline-edit-group">
-                    <span class="title"><?php esc_html_e( 'Bookmark Title', 'admin-bookmarks' ); ?></span>
-                    <span class="input-text-wrap">
-                        <input type="text" name="admin_bookmark_title" value="" />
-                    </span>
-                </label>
-            </div>
-        </fieldset>
-        <?php
-    }
-
-    /**
-     * Save the bookmark title provided via Quick Edit.
-     *
-     * @param int     $post_id Post ID being saved.
-     * @param WP_Post $post    Post object.
-     *
-     * @return void
-     */
-    public function save_bookmark_title( $post_id, $post ) {
-        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-            return;
-        }
-
-        if ( wp_is_post_revision( $post_id ) ) {
-            return;
-        }
-
-        if ( ! isset( $_POST['admin_bookmarks_quick_edit_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['admin_bookmarks_quick_edit_nonce'] ) ), 'admin_bookmarks_quick_edit' ) ) {
-            return;
-        }
-
-        if ( ! current_user_can( 'edit_post', $post_id ) ) {
-            return;
-        }
-
-        $supported = admin_bookmarks_get_supported_post_types( 'names' );
-        if ( empty( $supported ) || ! in_array( $post->post_type, $supported, true ) ) {
-            return;
-        }
-
-        if ( ! isset( $_POST['admin_bookmark_title'] ) ) {
-            return;
-        }
-
-        $bookmark_title = sanitize_text_field( wp_unslash( $_POST['admin_bookmark_title'] ) );
-
-        if ( '' === $bookmark_title ) {
-            delete_post_meta( $post_id, '_bookmark_title' );
-        } else {
-            update_post_meta( $post_id, '_bookmark_title', $bookmark_title );
-        }
-    }
-
-    /**
-     * Conditionally register the Bookmarks tab alongside post status views.
-     *
-     * @param WP_Screen $screen Current screen.
-     *
-     * @return void
-     */
-    public function maybe_register_bookmark_view( $screen ) {
-        if ( ! $screen instanceof WP_Screen || 'edit' !== $screen->base ) {
-            return;
-        }
-
-        $post_type = $screen->post_type ? $screen->post_type : 'post';
-        $supported = admin_bookmarks_get_supported_post_types( 'names' );
-
-        if ( empty( $supported ) || ! in_array( $post_type, $supported, true ) ) {
-            return;
-        }
-
-        add_filter( 'views_' . $screen->id, array( $this, 'add_bookmark_view' ) );
-    }
-
-    /**
-     * Inject the Bookmarks view link into the list table status links.
-     *
-     * @param array $views Existing views.
-     *
-     * @return array
-     */
-    public function add_bookmark_view( $views ) {
-        $screen = get_current_screen();
-        if ( ! $screen instanceof WP_Screen ) {
-            return $views;
-        }
-
-        $post_type = $screen->post_type ? $screen->post_type : 'post';
-        $bookmarked_ids = $this->get_bookmarked_post_ids( $post_type );
-        $count          = count( $bookmarked_ids );
-        $is_current     = isset( $_GET['admin_bookmarks'] ) && '1' === $_GET['admin_bookmarks'];
-
-        if ( 0 === $count && ! $is_current ) {
-            return $views;
-        }
-
-        if ( $is_current ) {
-            foreach ( $views as $key => $link ) {
-                if ( false !== strpos( $link, 'class="current"' ) ) {
-                    $views[ $key ] = str_replace( 'class="current"', '', $link );
-                }
-            }
-        }
-
-        $url = add_query_arg(
-            array( 'admin_bookmarks' => 1 ),
-            $this->edit_list_url( $post_type )
-        );
-
-        $views['admin-bookmarks'] = sprintf(
-            '<a href="%1$s"%2$s>%3$s <span class="count">(%4$s)</span></a>',
-            esc_url( $url ),
-            $is_current ? ' class="current"' : '',
-            esc_html__( 'Bookmarks', 'admin-bookmarks' ),
-            number_format_i18n( $count )
-        );
-
-        return $views;
-    }
-
-    /**
-     * Filter the edit screen query to show only bookmarked posts when requested.
-     *
-     * @param WP_Query $query Query instance.
-     *
-     * @return void
-     */
-    public function filter_bookmarked_posts( $query ) {
-        if ( ! is_admin() || ! $query->is_main_query() ) {
-            return;
-        }
-
-        global $pagenow;
-
-        if ( 'edit.php' !== $pagenow || empty( $_GET['admin_bookmarks'] ) ) {
-            return;
-        }
-
-        $post_type = $query->get( 'post_type' );
-        $post_type = $post_type ? $post_type : 'post';
-
-        $supported = admin_bookmarks_get_supported_post_types( 'names' );
-        if ( empty( $supported ) || ! in_array( $post_type, $supported, true ) ) {
-            return;
-        }
-
-        $bookmarked_ids = $this->get_bookmarked_post_ids( $post_type );
-
-        if ( empty( $bookmarked_ids ) ) {
-            $bookmarked_ids = array( 0 );
-        }
-
-        $query->set( 'post__in', $bookmarked_ids );
-        $query->set( 'orderby', 'post__in' );
-        $query->set( 'ignore_sticky_posts', true );
-    }
-
-    /**
-     * Add bookmarked posts to the WordPress admin bar.
-     *
-     * @param WP_Admin_Bar $wp_admin_bar Admin bar instance.
-     *
-     * @return void
-     */
-    public function add_bookmarks_to_admin_bar( $wp_admin_bar ) {
-        if ( ! is_user_logged_in() || ! $wp_admin_bar instanceof WP_Admin_Bar ) {
-            return;
-        }
-
-        $groups = $this->ensure_bookmark_groups();
-
-        if ( empty( $groups ) ) {
-            return;
-        }
-
-        $wp_admin_bar->add_node(
-            array(
-                'id'    => 'admin-bookmarks',
-                'title' => esc_html__( 'Bookmarks', 'admin-bookmarks' ),
-                'href'  => false,
-                'meta'  => array( 'class' => 'admin-bookmarks-adminbar' ),
-            )
-        );
-
-        foreach ( $groups as $post_type => $group ) {
-            if ( empty( $group['posts'] ) ) {
-                continue;
-            }
-
-            $parent_id = 'admin-bookmarks-' . sanitize_key( $post_type );
-
-            $wp_admin_bar->add_node(
-                array(
-                    'id'     => $parent_id,
-                    'parent' => 'admin-bookmarks',
-                    'title'  => esc_html( $group['label'] ),
-                    'href'   => admin_url( $group['href'] ),
-                )
-            );
-
-            foreach ( $group['posts'] as $post ) {
-                if ( ! $post instanceof WP_Post ) {
-                    continue;
-                }
-
-                if ( ! current_user_can( 'edit_post', $post->ID ) ) {
-                    continue;
-                }
-
-                $wp_admin_bar->add_node(
-                    array(
-                        'id'     => $parent_id . '-' . $post->ID,
-                        'parent' => $parent_id,
-                        'title'  => esc_html( $this->get_bookmark_title_text( $post ) ),
-                        'href'   => admin_url( $this->build_edit_url( $post ) ),
-                    )
-                );
-            }
-        }
-    }
 }
+
+require_once __DIR__ . '/class-admin-bookmarks-admin-bar.php';
+require_once __DIR__ . '/class-admin-bookmarks-dashboard-widget.php';
+require_once __DIR__ . '/class-admin-bookmarks-quick-edit.php';
+require_once __DIR__ . '/class-admin-bookmarks-view.php';

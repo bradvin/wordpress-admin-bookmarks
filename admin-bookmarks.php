@@ -28,11 +28,13 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+define( 'ADMIN_BOOKMARKS_SLUG', 'admin-bookmarks' );
+define( 'ADMIN_BOOKMARKS_FILE', __FILE__ );
+define( 'ADMIN_BOOKMARKS_VERSION', '2.1.0' );
+
 //we only need to do things in the admin
 if ( is_admin() ) {
-	define( 'ADMIN_BOOKMARKS_SLUG', 'admin-bookmarks' );
-	define( 'ADMIN_BOOKMARKS_FILE', __FILE__ );
-    define( 'ADMIN_BOOKMARKS_VERSION', '2.1.0' );
+
 
 	require_once( 'includes/class-admin-bookmarks.php' );
 	require_once( 'includes/functions.php' );
