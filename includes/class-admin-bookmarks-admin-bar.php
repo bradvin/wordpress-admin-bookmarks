@@ -8,17 +8,9 @@
 class Admin_Bookmarks_Admin_Bar {
 
 	/**
-	 * @var AdminBookmarks
-	 */
-	private $core;
-
-	/**
 	 * Constructor.
-	 *
-	 * @param AdminBookmarks $core Core plugin instance.
 	 */
-	public function __construct( AdminBookmarks $core ) {
-		$this->core = $core;
+	public function __construct() {
 		add_action( 'admin_bar_menu', array( $this, 'add_bookmarks_to_admin_bar' ), 80 );
 	}
 
@@ -34,7 +26,7 @@ class Admin_Bookmarks_Admin_Bar {
 			return;
 		}
 
-		$groups = $this->core->get_bookmark_groups();
+		$groups = admin_bookmarks_get_bookmark_groups();
 
 		if ( empty( $groups ) ) {
 			return;
@@ -78,12 +70,11 @@ class Admin_Bookmarks_Admin_Bar {
 					array(
 						'id'     => $parent_id . '-' . $post->ID,
 						'parent' => $parent_id,
-						'title'  => esc_html( $this->core->get_bookmark_title_text( $post ) ),
-						'href'   => admin_url( $this->core->build_edit_url( $post ) ),
+						'title'  => esc_html( admin_bookmarks_get_bookmark_title_text( $post ) ),
+						'href'   => admin_bookmarks_get_edit_post_url( $post ),
 					)
 				);
 			}
 		}
 	}
 }
-

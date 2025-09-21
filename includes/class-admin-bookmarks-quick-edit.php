@@ -8,17 +8,9 @@
 class Admin_Bookmarks_Quick_Edit {
 
 	/**
-	 * @var AdminBookmarks
-	 */
-	private $core;
-
-	/**
 	 * Constructor.
-	 *
-	 * @param AdminBookmarks $core Core plugin instance.
 	 */
-	public function __construct( AdminBookmarks $core ) {
-		$this->core = $core;
+	public function __construct() {
 		add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit_bookmark_field' ), 10, 2 );
 		add_action( 'save_post', array( $this, 'save_bookmark_title' ), 10, 2 );
 	}
@@ -103,6 +95,7 @@ class Admin_Bookmarks_Quick_Edit {
 		} else {
 			update_post_meta( $post_id, '_bookmark_title', $bookmark_title );
 		}
+
+		admin_bookmarks_reset_bookmark_groups();
 	}
 }
-

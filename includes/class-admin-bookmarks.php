@@ -31,13 +31,6 @@ class AdminBookmarks {
     private $menu_data = array();
 
     /**
-     * Grouped bookmarks keyed by post type.
-     *
-     * @var array
-     */
-    private $bookmark_groups = array();
-
-    /**
      * Feature components managed by the core class.
      *
      * @var array
@@ -55,10 +48,10 @@ class AdminBookmarks {
         add_action( 'init', array( $this, 'create_columns_for_all_post_types' ), 999 );
         add_action( 'wp_ajax_toggle_admin_bookmark', array( $this, 'ajax_toggle_bookmark_callback' ) );
 
-        $this->components[] = new Admin_Bookmarks_Admin_Bar( $this );
-        $this->components[] = new Admin_Bookmarks_Dashboard_Widget( $this );
-        $this->components[] = new Admin_Bookmarks_Quick_Edit( $this );
-        $this->components[] = new Admin_Bookmarks_View( $this );
+        $this->components[] = new Admin_Bookmarks_Admin_Bar();
+        $this->components[] = new Admin_Bookmarks_Dashboard_Widget();
+        $this->components[] = new Admin_Bookmarks_Quick_Edit();
+        $this->components[] = new Admin_Bookmarks_View();
     }
 
     /**
@@ -141,7 +134,7 @@ class AdminBookmarks {
         $untitled_label = apply_filters( 'admin_bookmarks_untitled_label', __( 'ID : %s', 'admin-bookmarks' ) );
         $screen         = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
         $screen_type    = ( $screen && $screen->post_type ) ? $screen->post_type : 'post';
-        $menu_handle    = $this->get_menu_handle_for_post_type( $screen_type );
+        $menu_handle    = admin_bookmarks_get_menu_handle( $screen_type );
 
         wp_localize_script(
             'admin-bookmarks-post-listing',
@@ -181,221 +174,6 @@ class AdminBookmarks {
     }
 
     /**
-     * Provide the edit screen URL for a given post type.
-     *
-     * @param string $post_type Post type slug.
-     *
-     * @return string
-     */
-    public function edit_list_url( $post_type ) {
-        return admin_url( $this->edit_list_path( $post_type ) );
-    }
-
-    /**
-     * Provide the relative edit screen path for a post type.
-     *
-     * @param string $post_type Post type slug.
-     *
-     * @return string
-     */
-    public function edit_list_path( $post_type ) {
-        if ( 'post' === $post_type ) {
-            return 'edit.php';
-        }
-
-        return 'edit.php?post_type=' . sanitize_key( $post_type );
-    }
-
-    /**
-     * Determine the admin menu handle associated with a post type list table.
-     *
-     * @param string $post_type Post type slug.
-     *
-     * @return string
-     */
-    public function get_menu_handle_for_post_type( $post_type ) {
-        return ( 'post' === $post_type ) ? 'edit.php' : 'edit.php?post_type=' . sanitize_key( $post_type );
-    }
-
-    /**
-     * Return a human-readable label for the given post type.
-     *
-     * @param string $post_type Post type slug.
-     *
-     * @return string
-     */
-    private function get_post_type_label( $post_type ) {
-        $object = get_post_type_object( $post_type );
-
-        if ( $object ) {
-            if ( ! empty( $object->labels->menu_name ) ) {
-                return $object->labels->menu_name;
-            }
-
-            if ( ! empty( $object->label ) ) {
-                return $object->label;
-            }
-        }
-
-        $post_type = sanitize_key( $post_type );
-
-        return ucwords( str_replace( array( '-', '_' ), ' ', $post_type ) );
-    }
-
-    /**
-     * Resolve the bookmark title for a post, falling back to the ID label.
-     *
-     * @param int    $post_id    Post ID.
-     * @param string $post_title Original post title.
-     *
-     * @return string
-     */
-    public function resolve_bookmark_title( $post_id, $post_title = '' ) {
-        $post_id      = absint( $post_id );
-        $custom_title = get_post_meta( $post_id, '_bookmark_title', true );
-        $title        = '' !== trim( (string) $custom_title ) ? $custom_title : trim( (string) $post_title );
-
-        if ( '' === $title ) {
-            $title = sprintf( __( 'ID : %d', 'admin-bookmarks' ), $post_id );
-        }
-
-        return $title;
-    }
-
-    /**
-     * Return the user-facing bookmark title for a post object.
-     *
-     * @param WP_Post $post Post object.
-     *
-     * @return string
-     */
-    public function get_bookmark_title_text( $post ) {
-        if ( ! $post instanceof WP_Post ) {
-            return '';
-        }
-
-        return $this->resolve_bookmark_title( $post->ID, $post->post_title );
-    }
-
-    /**
-     * Compute bookmark groups keyed by post type.
-     *
-     * @return array
-     */
-    private function compute_bookmark_groups() {
-        $bookmarks = admin_bookmarks_get_bookmarks();
-
-        if ( empty( $bookmarks ) || ! is_array( $bookmarks ) ) {
-            return array();
-        }
-
-        $post_types = admin_bookmarks_get_supported_post_types( 'names' );
-
-        if ( empty( $post_types ) || ! is_array( $post_types ) ) {
-            return array();
-        }
-
-        $bookmark_ids = wp_parse_id_list( array_keys( $bookmarks ) );
-        if ( empty( $bookmark_ids ) ) {
-            return array();
-        }
-
-        $posts = get_posts(
-            array(
-                'post_type'           => $post_types,
-                'post_status'         => 'any',
-                'numberposts'         => -1,
-                'post__in'            => $bookmark_ids,
-                'orderby'             => 'post__in',
-                'ignore_sticky_posts' => true,
-            )
-        );
-
-        if ( empty( $posts ) ) {
-            return array();
-        }
-
-        $groups = array();
-
-        foreach ( $posts as $post ) {
-            if ( ! $post instanceof WP_Post ) {
-                continue;
-            }
-
-            if ( ! isset( $groups[ $post->post_type ] ) ) {
-                $groups[ $post->post_type ] = array(
-                    'post_type' => $post->post_type,
-                    'handle'    => $this->get_menu_handle_for_post_type( $post->post_type ),
-                    'href'      => add_query_arg( 'admin_bookmarks', 1, $this->edit_list_path( $post->post_type ) ),
-                    'label'     => $this->get_post_type_label( $post->post_type ),
-                    'posts'     => array(),
-                );
-            }
-
-            $groups[ $post->post_type ]['posts'][] = $post;
-        }
-
-        return $groups;
-    }
-
-    /**
-     * Ensure bookmark groups are computed and cached.
-     *
-     * @return array
-     */
-    private function ensure_bookmark_groups() {
-        if ( empty( $this->bookmark_groups ) ) {
-            $this->bookmark_groups = $this->compute_bookmark_groups();
-        }
-
-        return $this->bookmark_groups;
-    }
-
-    /**
-     * Retrieve grouped bookmarks keyed by post type.
-     *
-     * @return array
-     */
-    public function get_bookmark_groups() {
-        return $this->ensure_bookmark_groups();
-    }
-
-    /**
-     * Retrieve bookmarked post IDs for the current user filtered by type.
-     *
-     * @param string $post_type Post type slug.
-     *
-     * @return array
-     */
-    public function get_bookmarked_post_ids( $post_type ) {
-        $bookmarks = admin_bookmarks_get_bookmarks();
-
-        if ( empty( $bookmarks ) || ! is_array( $bookmarks ) ) {
-            return array();
-        }
-
-        $post_ids = array_keys( $bookmarks );
-        if ( empty( $post_ids ) ) {
-            return array();
-        }
-
-        $posts = get_posts(
-            array(
-                'post_type'       => $post_type,
-                'post_status'     => 'any',
-                'numberposts'     => -1,
-                'fields'          => 'ids',
-                'post__in'        => $post_ids,
-                'orderby'         => 'post__in',
-                'no_found_rows'   => true,
-                'suppress_filters'=> true,
-            )
-        );
-
-        return is_array( $posts ) ? array_map( 'absint', $posts ) : array();
-    }
-
-    /**
      * Register the custom bookmark column for all post types.
      *
      * @return void
@@ -419,15 +197,15 @@ class AdminBookmarks {
      */
     public function alter_admin_menu() {
         $this->menu_data = array();
-        $this->bookmark_groups = $this->compute_bookmark_groups();
+        $groups = admin_bookmarks_get_bookmark_groups();
 
-        if ( empty( $this->bookmark_groups ) ) {
+        if ( empty( $groups ) ) {
             return;
         }
 
         global $submenu;
 
-        foreach ( $this->bookmark_groups as $post_type => $data ) {
+        foreach ( $groups as $post_type => $data ) {
             if ( empty( $data['posts'] ) ) {
                 continue;
             }
@@ -448,7 +226,7 @@ class AdminBookmarks {
             $submenu[ $handle ][] = array(
                 esc_html__( 'Bookmarks', 'admin-bookmarks' ),
                 $capability,
-                esc_url_raw( $data['href'] ),
+                $data['href'],
                 esc_html__( 'Bookmarks', 'admin-bookmarks' ),
             );
 
@@ -464,10 +242,10 @@ class AdminBookmarks {
                 }
 
                 $items[] = array(
-                    'post_id' => (int) $post->ID,
-                    'url'     => esc_url_raw( admin_url( $this->build_edit_url( $post ) ) ),
-                    'label'   => $this->build_menu_item_content( $post->ID, $post->post_title ),
-                    'post_type' => $post->post_type,
+                    'post_id'  => (int) $post->ID,
+                    'url'      => esc_url_raw( admin_bookmarks_get_edit_post_url( $post ) ),
+                    'label'    => admin_bookmarks_build_menu_item_content( $post->ID, $post->post_title ),
+                    'post_type'=> $post->post_type,
                 );
             }
 
@@ -477,44 +255,11 @@ class AdminBookmarks {
 
             $this->menu_data[] = array(
                 'handle'    => $data['handle'],
-                'href'      => esc_url_raw( $data['href'] ),
+                'href'      => $data['href'],
                 'post_type' => $post_type,
                 'items'     => $items,
             );
         }
-    }
-
-    /**
-     * Build the edit URL for a given post.
-     *
-     * @param WP_Post $post Post object to edit.
-     *
-     * @return string
-     */
-    public function build_edit_url( $post ) {
-        $post_id = $post instanceof WP_Post ? absint( $post->ID ) : 0;
-
-        return 'post.php?post=' . $post_id . '&action=edit';
-    }
-
-    /**
-     * Generate the menu item markup for a bookmarked post.
-     *
-     * @param int    $post_id    Post ID.
-     * @param string $post_title Post title.
-     *
-     * @return string
-     */
-    public function build_menu_item_content( $post_id, $post_title ) {
-        $post_id = absint( $post_id );
-        $title   = $this->resolve_bookmark_title( $post_id, $post_title );
-
-        return sprintf(
-            '<span id="%1$s" data-admin-bookmark="%2$s" class="admin-bookmarks-icon bookmarked admin-bookmarks-menu-item"></span>%3$s',
-            esc_attr( 'admin-bookmark-' . $post_id ),
-            esc_attr( (string) $post_id ),
-            esc_html( $title )
-        );
     }
 
     /**
@@ -525,8 +270,8 @@ class AdminBookmarks {
      * @return void
      */
     public function ajax_toggle_bookmark_callback() {
-        $this->bookmark_groups = array();
-        $this->menu_data       = array();
+        $this->menu_data = array();
+        admin_bookmarks_reset_bookmark_groups();
 
         $post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
         $nonce   = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
@@ -536,8 +281,8 @@ class AdminBookmarks {
         }
 
         $post   = get_post( $post_id );
-        $handle = $post instanceof WP_Post ? $this->get_menu_handle_for_post_type( $post->post_type ) : '';
-        $href   = $post instanceof WP_Post ? esc_url_raw( add_query_arg( 'admin_bookmarks', 1, $this->edit_list_path( $post->post_type ) ) ) : '';
+        $handle = $post instanceof WP_Post ? admin_bookmarks_get_menu_handle( $post->post_type ) : '';
+        $href   = $post instanceof WP_Post ? add_query_arg( 'admin_bookmarks', 1, admin_bookmarks_get_edit_list_path( $post->post_type ) ) : '';
 
         $bookmarked = admin_bookmarks_toggle_bookmark( $post_id );
 
@@ -548,8 +293,8 @@ class AdminBookmarks {
                     'removed' => false,
                     'item'    => array(
                         'post_id' => (int) $post_id,
-                        'url'     => esc_url_raw( admin_url( $this->build_edit_url( $post ) ) ),
-                        'label'   => $this->build_menu_item_content( $post_id, $post->post_title ),
+                        'url'     => esc_url_raw( admin_bookmarks_get_edit_post_url( $post ) ),
+                        'label'   => admin_bookmarks_build_menu_item_content( $post_id, $post->post_title ),
                         'handle'  => $handle,
                         'href'    => $href,
                         'post_type' => $post->post_type,
@@ -561,8 +306,9 @@ class AdminBookmarks {
         wp_send_json( array(
             'post_id' => $post_id,
             'removed' => true,
-            'handle'  => $handle,
+            'handle'    => $handle,
             'post_type' => $post instanceof WP_Post ? $post->post_type : '',
+            'href'      => $href,
         ) );
     }
 

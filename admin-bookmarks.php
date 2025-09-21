@@ -36,7 +36,7 @@ define( 'ADMIN_BOOKMARKS_VERSION', '2.1.0' );
 if ( is_admin() ) {
 
 
-	require_once( 'includes/class-admin-bookmarks.php' );
 	require_once( 'includes/functions.php' );
+	require_once( 'includes/class-admin-bookmarks.php' );
 	add_action( 'plugins_loaded', array( 'AdminBookmarks', 'get_instance' ) );
 }

@@ -8,17 +8,9 @@
 class Admin_Bookmarks_View {
 
 	/**
-	 * @var AdminBookmarks
-	 */
-	private $core;
-
-	/**
 	 * Constructor.
-	 *
-	 * @param AdminBookmarks $core Core plugin instance.
 	 */
-	public function __construct( AdminBookmarks $core ) {
-		$this->core = $core;
+	public function __construct() {
 		add_action( 'current_screen', array( $this, 'maybe_register_bookmark_view' ) );
 		add_action( 'pre_get_posts', array( $this, 'filter_bookmarked_posts' ) );
 	}
@@ -59,7 +51,7 @@ class Admin_Bookmarks_View {
 		}
 
 		$post_type      = $screen->post_type ? $screen->post_type : 'post';
-		$bookmarked_ids = $this->core->get_bookmarked_post_ids( $post_type );
+		$bookmarked_ids = admin_bookmarks_get_bookmarked_post_ids( $post_type );
 		$count          = count( $bookmarked_ids );
 		$is_current     = isset( $_GET['admin_bookmarks'] ) && '1' === $_GET['admin_bookmarks'];
 
@@ -77,7 +69,7 @@ class Admin_Bookmarks_View {
 
 		$url = add_query_arg(
 			array( 'admin_bookmarks' => 1 ),
-			$this->core->edit_list_url( $post_type )
+			admin_bookmarks_get_edit_list_url( $post_type )
 		);
 
 		$views['admin-bookmarks'] = sprintf(
@@ -117,7 +109,7 @@ class Admin_Bookmarks_View {
 			return;
 		}
 
-		$bookmarked_ids = $this->core->get_bookmarked_post_ids( $post_type );
+		$bookmarked_ids = admin_bookmarks_get_bookmarked_post_ids( $post_type );
 
 		if ( empty( $bookmarked_ids ) ) {
 			$bookmarked_ids = array( 0 );
@@ -128,4 +120,3 @@ class Admin_Bookmarks_View {
 		$query->set( 'ignore_sticky_posts', true );
 	}
 }
-
