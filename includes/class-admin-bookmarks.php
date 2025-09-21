@@ -12,61 +12,25 @@
 /**
  * Admin Bookmarks main class.
  */
-class AdminBookmarks {
-
-    /**
-     * Instance of this class.
-     *
-     * @since 1.0.0
-     *
-     * @var AdminBookmarks|null
-     */
-    protected static $instance = null;
+class Admin_Bookmarks_Main {
 
     /**
      * Cached bookmark menu data used for client-side rendering.
      *
      * @var array
      */
-    private $menu_data = array();
-
-    /**
-     * Feature components managed by the core class.
-     *
-     * @var array
-     */
-    private $components = array();
+    private $menu_data = array();   
 
     /**
      * Initialize the plugin by setting localization and loading admin assets.
      *
      * @since 1.0.0
      */
-    private function __construct() {
+    public function __construct() {
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
         add_action( 'admin_menu', array( $this, 'alter_admin_menu' ) );
         add_action( 'init', array( $this, 'create_columns_for_all_post_types' ), 999 );
         add_action( 'wp_ajax_toggle_admin_bookmark', array( $this, 'ajax_toggle_bookmark_callback' ) );
-
-        $this->components[] = new Admin_Bookmarks_Admin_Bar();
-        $this->components[] = new Admin_Bookmarks_Dashboard_Widget();
-        $this->components[] = new Admin_Bookmarks_Quick_Edit();
-        $this->components[] = new Admin_Bookmarks_View();
-    }
-
-    /**
-     * Return an instance of this class.
-     *
-     * @since 1.0.0
-     *
-     * @return AdminBookmarks
-     */
-    public static function get_instance() {
-        if ( null === self::$instance ) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
     }
 
     /**
