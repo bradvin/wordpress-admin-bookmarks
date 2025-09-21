@@ -32,11 +32,35 @@ define( 'ADMIN_BOOKMARKS_SLUG', 'admin-bookmarks' );
 define( 'ADMIN_BOOKMARKS_FILE', __FILE__ );
 define( 'ADMIN_BOOKMARKS_VERSION', '2.1.0' );
 
-//we only need to do things in the admin
-if ( is_admin() ) {
+require_once( 'includes/functions.php' );
+require_once( 'includes/class-admin-bookmarks.php' );
 
+function admin_bookmarks_init() {
+	if ( is_admin() ) {
+		// Always run the main class in admin.
+		new Admin_Bookmarks_Main();
 
-	require_once( 'includes/functions.php' );
-	require_once( 'includes/class-admin-bookmarks.php' );
-	add_action( 'plugins_loaded', array( 'AdminBookmarks', 'get_instance' ) );
+		if ( apply_filters( 'admin_bookmark_feature-dashboard_widget', true ) ) {
+			require_once( 'includes/class-admin-bookmarks-dashboard-widget.php' );
+			new Admin_Bookmarks_Dashboard_Widget();
+		}
+
+		if ( apply_filters( 'admin_bookmark_feature-quick-edit', true ) ) {
+			require_once( 'includes/class-admin-bookmarks-quick-edit.php' );
+			new Admin_Bookmarks_Quick_Edit();
+		}
+
+		if ( apply_filters( 'admin_bookmark_feature-view', true ) ) {
+			require_once( 'includes/class-admin-bookmarks-view.php' );
+			new Admin_Bookmarks_View();
+		}
+	}
+
+	// Run the admin bar class only if the user is logged in.
+	if ( is_user_logged_in() && apply_filters( 'admin_bookmark_feature-admin-bar', true ) ) {
+		require_once( 'includes/class-admin-bookmarks-admin-bar.php' );
+		new Admin_Bookmarks_Admin_Bar();
+	}
 }
+add_action( 'plugins_loaded', 'admin_bookmarks_init' );
+
