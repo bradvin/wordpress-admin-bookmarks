@@ -36,6 +36,14 @@ Use this plugin if you constantly find yourself editing the same posts or pages,
 
 * `admin_bookmarks_post_types` - Filter to scope bookmarks to specific post types
 * `admin_bookmarks_untitled_label` - Filter to customize the untitled label
+* `admin_bookmark_feature-dashboard_widget` - Filter to disable the dashboard widget
+* `admin_bookmark_feature-quick-edit` - Filter to disable the quick edit feature
+* `admin_bookmark_feature-view` - Filter to disable the view feature
+* `admin_bookmark_feature-admin-bar` - Filter to disable the admin bar feature
+
+To disable a feature, add a small bit of custom code to your theme's `functions.php` file:
+
+`add_filter( 'admin_bookmark_feature-dashboard_widget', '__return_false' );`
 
 == Installation ==
 
