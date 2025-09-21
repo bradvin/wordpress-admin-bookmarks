@@ -1,4 +1,4 @@
-.admin-bookmarks-icon:before {
+.wp-list-table .admin-bookmarks-icon:before {
 	font: normal 20px/.5 'dashicons';
 	display: inline-block;
 	padding: 0;
@@ -11,14 +11,19 @@
 	content: "\f154";
 }
 
-	.admin-bookmarks-icon.bookmarked:before {
-		content: "\f155";
-	}
+.wp-list-table .admin-bookmarks-icon.bookmarked:before {
+	content: "\f155";
+}
 
-	th.column-bookmark, td.column-bookmark {
-		width: 2em;
-		text-align: center;
-	}
+th.column-bookmark, td.column-bookmark {
+	width: 2em;
+	text-align: center;
+}
+
+th.column-bookmark, td.column-bookmark {
+	width: 2em;
+	text-align: center;
+}
 
 .wp-submenu .admin-bookmarks-icon:before {
 	font-size: 12px;
@@ -71,6 +76,10 @@ li.current .admin-bookmarks-icon:before {
 	display: none;
 }
 
+.wp-list-table td.bookmark.column-bookmark::before {
+	content: '' !important;
+}	
+
 .admin-bookmarks-hidden {
 	display: none !important;
 }
@@ -88,12 +97,15 @@ li.current .admin-bookmarks-icon:before {
 }
 
 .admin-bookmarks-group__toggle:after {
-	content: "\f345";
+	content: "\f139";
 	font-family: dashicons;
-	font-size: 12px;
+	font-size: 18px;
 	line-height: 1;
 	margin-left: auto;
-	transform: translateY(-1px);
+	position: absolute;
+	right: 10px;
+	padding: 0;
+	top: 5px;
 }
 
 .admin-bookmarks-group.has-current-bookmark > .admin-bookmarks-group__toggle {
@@ -132,10 +144,4 @@ li.current .admin-bookmarks-icon:before {
 .admin-bookmarks-group .admin-bookmarks-submenu li.current > a {
 	background: #0073aa;
 	color: #fff;
-}
-
-.admin-bookmarks-group.is-open > .admin-bookmarks-group__toggle:after,
-.admin-bookmarks-group:focus-within > .admin-bookmarks-group__toggle:after,
-.admin-bookmarks-group:hover > .admin-bookmarks-group__toggle:after {
-	transform: translateY(-1px) rotate(90deg);
 }
