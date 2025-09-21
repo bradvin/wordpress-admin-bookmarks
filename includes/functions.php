@@ -358,34 +358,34 @@ function admin_bookmarks_get_bookmarked_post_ids( $post_type ) {
  * @return array
  */
 function admin_bookmarks_get_bookmark_groups( $force_refresh = false ) {
-    static $cache = null;
+    global $admin_bookmarks_cache;
 
     if ( $force_refresh ) {
-        $cache = null;
+        $admin_bookmarks_cache = null;
     }
 
-    if ( null !== $cache ) {
-        return $cache;
+    if ( null !== $admin_bookmarks_cache ) {
+        return $admin_bookmarks_cache;
     }
 
     $bookmarks = admin_bookmarks_get_bookmarks();
 
     if ( empty( $bookmarks ) || ! is_array( $bookmarks ) ) {
-        $cache = array();
-        return $cache;
+        $admin_bookmarks_cache = array();
+        return $admin_bookmarks_cache;
     }
 
     $post_types = admin_bookmarks_get_supported_post_types( 'names' );
 
     if ( empty( $post_types ) || ! is_array( $post_types ) ) {
-        $cache = array();
-        return $cache;
+        $admin_bookmarks_cache = array();
+        return $admin_bookmarks_cache;
     }
 
     $bookmark_ids = wp_parse_id_list( array_keys( $bookmarks ) );
     if ( empty( $bookmark_ids ) ) {
-        $cache = array();
-        return $cache;
+        $admin_bookmarks_cache = array();
+        return $admin_bookmarks_cache;
     }
 
     $posts = get_posts(
@@ -400,8 +400,8 @@ function admin_bookmarks_get_bookmark_groups( $force_refresh = false ) {
     );
 
     if ( empty( $posts ) ) {
-        $cache = array();
-        return $cache;
+        $admin_bookmarks_cache = array();
+        return $admin_bookmarks_cache;
     }
 
     $groups = array();
@@ -424,9 +424,9 @@ function admin_bookmarks_get_bookmark_groups( $force_refresh = false ) {
         $groups[ $post->post_type ]['posts'][] = $post;
     }
 
-    $cache = $groups;
+    $admin_bookmarks_cache = $groups;
 
-    return $cache;
+    return $admin_bookmarks_cache;
 }
 
 /**
