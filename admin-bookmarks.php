@@ -14,7 +14,7 @@
  * Plugin Name:       Admin Bookmarks
  * Plugin URI:        http://fooplugins.com/plugins/admin-bookmarks
  * Description:       Allows users to bookmark their favorite posts and pages within the WordPress admin area
- * Version:           2.1.0
+ * Version:           2.0.0
  * Author:            Brad Vincent
  * Author URI:        http://fooplugins.com
  * Text Domain:       admin-bookmarks
@@ -30,7 +30,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 define( 'ADMIN_BOOKMARKS_SLUG', 'admin-bookmarks' );
 define( 'ADMIN_BOOKMARKS_FILE', __FILE__ );
-define( 'ADMIN_BOOKMARKS_VERSION', '2.1.0' );
+define( 'ADMIN_BOOKMARKS_VERSION', '2.0.0' );
 
 require_once( 'includes/functions.php' );
 require_once( 'includes/class-admin-bookmarks.php' );
