@@ -9,8 +9,8 @@ module.exports = function (grunt) {
 					plugin_slug: 'my-admin-bookmarks',
 				},
 				files: {
-          'readme.md': 'readme.txt'
-        }
+					'readme.md': 'readme.txt'
+				}
 			}
 		}
 	});

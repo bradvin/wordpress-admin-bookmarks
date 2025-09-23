@@ -55,12 +55,12 @@ To disable a feature, add a small bit of custom code to your theme's `functions.
 
 1. New bookmark column
 2. Bookmarks added to admin menu
-3. Dashboard bookmarks widget
+3. Bookmarks in Admin Bar
+4. Bookmarks View
+5. Dashboard bookmarks widget
+6. Override title used for bookmark
 
 == Changelog ==
-
-= 1.0.0 =
-* Initial Release. First version. Written from the ground up. Based on my outdated "Post Admin Shortcuts" plugin.
 
 = 2.0.0 =
 * Updated to work with WordPress 6.0
@@ -70,6 +70,9 @@ To disable a feature, add a small bit of custom code to your theme's `functions.
 * Added optional Quick Edit "Bookmark Title" field (stored as `_bookmark_title`)
 * Added Bookmarks view to the listing pages.
 * Added WordPress admin bar integration, grouped by post type with direct edit links
+
+= 1.0.0 =
+* Initial Release. First version. Written from the ground up. Based on my outdated "Post Admin Shortcuts" plugin.
 
 == Frequently Asked Questions ==
 

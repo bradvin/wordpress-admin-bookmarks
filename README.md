@@ -1,5 +1,7 @@
 # Admin Bookmarks
 
+![Admin Bookmarks](banner-1544x500.png)
+
 **Contributors:** bradvin  
 **Tags:** admin, shortcut, bookmark, bookmarks, favorites  
 **Requires at least:** 3.8  
@@ -36,6 +38,10 @@ This plugin allows you to easily bookmark/favorite posts, pages and custom post 
 
 - `admin_bookmarks_post_types` – Scope bookmarks to specific post types.
 - `admin_bookmarks_untitled_label` – Customize the label used when a post lacks a title.
+- `admin_bookmark_feature-dashboard_widget` - Filter to disable the dashboard widget
+- `admin_bookmark_feature-quick-edit` - Filter to disable the quick edit feature
+- `admin_bookmark_feature-view` - Filter to disable the view feature
+- `admin_bookmark_feature-admin-bar` - Filter to disable the admin bar feature
 
 ## Installation
 
@@ -46,11 +52,17 @@ This plugin allows you to easily bookmark/favorite posts, pages and custom post 
 ## Screenshots
 
 1. New bookmark column  
-   ![New bookmark column](screenshot-1.png)
+   ![New bookmark column](screenshot-1.jpg)
 2. Bookmarks added to admin menu  
-   ![Bookmarks added to admin menu](screenshot-2.png)
-3. Dashboard bookmarks widget  
-   ![Dashboard bookmarks widget](screenshot-3.png)
+   ![Bookmarks added to admin menu](screenshot-2.jpg)
+3. Bookmarks in Admin Bar  
+   ![Bookmarks in Admin Bar](screenshot-3.jpg)
+4. Bookmarks View  
+   ![Bookmarks View](screenshot-4.jpg)
+5. Dashboard bookmarks widget  
+   ![Dashboard bookmarks widget](screenshot-5.png)
+6. Override title used for bookmark  
+   ![Override title used for bookmark](screenshot-6.jpg)
 
 
 
